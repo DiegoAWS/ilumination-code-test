@@ -1,14 +1,16 @@
-import {    Grommet  } from "grommet";
-import VideoInput from "./VideoInput ";
-
+import { Grommet } from "grommet";
+import VideoInput from "./components/VideoInput ";
+import VideoView from "./components/VideoView";
+import { GlobalContextProvider } from "./context/GlobalContext";
 
 function App() {
-  
-
   return (
-    <Grommet plain>
-     <VideoInput />
-    </Grommet>
+    <GlobalContextProvider>
+      <Grommet plain>
+        <VideoInput />
+        <VideoView />
+      </Grommet>
+    </GlobalContextProvider>
   );
 }
 

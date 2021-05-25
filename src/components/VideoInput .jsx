@@ -4,7 +4,8 @@ import { Box, Button, FileInput, Meter } from "grommet";
 
 import mime from "mime-types";
 import { v4 as uuidv4 } from "uuid";
-import { storage } from "./services/firebase";
+import { storage } from "../services/firebase";
+import { useGlobalContext } from "../context/GlobalContext";
 
 export default function VideoInput() {
   const [file, setFile] = useState(null);
@@ -14,7 +15,9 @@ export default function VideoInput() {
   const [uploadErrors, setUploadErrors] = useState([]);
   const authorizedFileTypes = ["video/mp4", "video/x-msvideo"]; // MP4 and AVI
 
-  /*video/x-flv
+  /*
+  VIDEO MIME types
+.flv  video/x-flv
 .mp4	video/mp4
 .m3u8	application/x-mpegURL
 .ts	  video/MP2T
@@ -22,6 +25,8 @@ export default function VideoInput() {
 .avi	video/x-msvideo
 .wmv	video/x-ms-wmv
 */
+
+  const { setVideoUrl } = useGlobalContext();
 
   /// file existed and between 10kB and 5mB
   const isProperFile = (file) =>
@@ -31,7 +36,6 @@ export default function VideoInput() {
     file.size < 5000000;
 
   const loadFile = (event) => {
-    console.log("loaded");
     const fileSelected = event?.target?.files[0];
 
     setFile(isProperFile(fileSelected) ? fileSelected : null);
@@ -70,7 +74,7 @@ export default function VideoInput() {
           .child(videoTitle)
           .getDownloadURL()
           .then((fireBaseUrl) => {
-            console.log({ fireBaseUrl });
+            setVideoUrl(fireBaseUrl);
             setUploadState("done");
           })
           .catch((err) => {
@@ -96,7 +100,7 @@ export default function VideoInput() {
         primary
         label="Upload"
         onClick={uploadFile}
-        disabled={!file && uploadState === "uploading"}
+        disabled={!file || uploadState === "uploading"}
       />
 
       {uploadState === "uploading" && (
