@@ -99,7 +99,7 @@ export default function VideoInput({
           <Box style={{ marginRight: "10px" }}>
             <LabelWrapper>
               <IconButtonDiv className={"videoUploaderButton"}>
-                <CloudUpload color={"2da8ff0f"} />
+                <CloudUpload color={"#2da8ff"} />
               </IconButtonDiv>
               <FileInput // the same as if we where using the native <input type='file />
                 accept=".mp4,.avi"
@@ -141,7 +141,7 @@ export default function VideoInput({
         </Box>
         {value && (
           <IconButtonDiv onClick={clearVideoHandler} className="closeButton">
-            <Close color={"#ff000017"} />
+            <Close color={"#ff000070"} />
           </IconButtonDiv>
         )}
       </VideoInputHeader>

@@ -10,6 +10,9 @@ function App() {
   return (
     <GlobalContextProvider>
       <Grommet theme={theme}>
+        <a href="https://github.com/DiegoCuba/ilumination-code-test#answer-to-the-excersice">
+          GitHub Answer to the Excersice
+        </a>
         <VideoUploader />
         <VideoGrid />
       </Grommet>

@@ -1,6 +1,5 @@
 import React from "react";
 import { useState } from "react";
-
 import { v4 as uuidv4 } from "uuid";
 import { storage } from "../services/firebase";
 import { useGlobalContext } from "../context/GlobalContext";
@@ -8,8 +7,8 @@ import VideoInput from "./VideoInput";
 import { saveVideoData } from "../services/databaseFunctions";
 import { Box } from "grommet";
 import { FILENAME_UNION } from "../utils/constants";
-
 import { ToastContainer, toast } from "react-toastify";
+
 export default function VideoUploader() {
   const { videoToPlay, setVideoToPlay } = useGlobalContext();
 
@@ -38,10 +37,9 @@ export default function VideoUploader() {
 
       // On Progress
       (snap) => {
-        const uploadedPercent = Math.round(
-          (snap.bytesTransferred / snap.totalBytes) * 100
+        setPercentUploaded(
+          Math.round((100 * snap.bytesTransferred) / snap.totalBytes)
         );
-        setPercentUploaded(uploadedPercent);
       },
 
       // On Error
