@@ -1,15 +1,15 @@
 import firebase from 'firebase/app'
 import 'firebase/database'
 import 'firebase/storage'
-
+require('dotenv').config()
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAksiHuH3zCucCZe-yv1jByYHPwr_IJo14",
+  apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "ilumination-code-test.firebaseapp.com",
   projectId: "ilumination-code-test",
   storageBucket: "ilumination-code-test.appspot.com",
-  messagingSenderId: "223969727083",
-  appId: "1:223969727083:web:c24723593fce96aa07572e"
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID
 };
 
 firebase.initializeApp(firebaseConfig);

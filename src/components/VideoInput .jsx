@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Box, FileInput, Meter, Image } from "grommet";
 import ReactPlayer from "react-player";
 import styled from "styled-components";
-import { NewWindow, Sync, Trash } from "grommet-icons";
+import { NewWindow, Sync, ClearOption, Update } from "grommet-icons";
 import videoLogo from "../assets/imgs/videoLogo.png";
 
 const LabelWrapper = styled.label`
@@ -22,6 +22,19 @@ const PlayerWrapper = styled.div`
 `;
 const IconButton = styled(Button)`
   padding: 5px;
+`;
+
+const SpinnerIcon = styled(Update)`
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(359deg);
+    }
+  }
+
+  animation: spin 2s linear infinite;
 `;
 
 /// video existed and between 10kB and 5mB
@@ -47,50 +60,77 @@ export default function VideoInput({
   return (
     <Box border={"all"} direction={"column"} {...props}>
       <Box direction="row">
-        <Box style={{ marginRight: "10px" }}>
-          <LabelWrapper>
-            {value ? (
-              <Sync
-                style={{ margin: "5px", cursor: "pointer" }}
-                color={"cornflowerblue"}
-              />
-            ) : (
-              <NewWindow
-                style={{ margin: "5px", cursor: "pointer" }}
-                color={"cornflowerblue"}
-              />
-            )}
+        {(percentage === 0 || percentage === 100) && (
+          <Box style={{ marginRight: "10px" }}>
+            <LabelWrapper>
+              {value ? (
+                <Sync
+                  style={{ margin: "5px", cursor: "pointer" }}
+                  color={"cornflowerblue"}
+                />
+              ) : (
+                <NewWindow
+                  style={{ margin: "5px", cursor: "pointer" }}
+                  color={"cornflowerblue"}
+                />
+              )}
 
-            <FileInput // the same if we where use the native <input type='file />
-              accept=".mp4,.avi"
-              type="file"
-              onChange={loadVideoHandler}
+              <FileInput // the same if we where use the native <input type='file />
+                accept=".mp4,.avi"
+                type="file"
+                onChange={loadVideoHandler}
+              />
+            </LabelWrapper>
+          </Box>
+        )}
+        {percentage > 0 && percentage < 100 && (
+          <Box>
+            <SpinnerIcon
+              style={{ margin: "5px" }}
+              color={"cornflowerblue"}
             />
-          </LabelWrapper>
-        </Box>
+          </Box>
+        )}
         <Box
           flex={{ grow: 1, position: "relative" }}
           justify={"center"}
           align={"center"}
         >
-          <Box style={{ position: "absolute" }}>{percentage + " %"}</Box>
-          <Meter
-            alignSelf={"center"}
-            margin={"5px"}
-            style={{ width: "100%" }}
-            thickness={"small"}
-            values={[
-              {
-                value: percentage,
-                color: "cornflowerblue",
-                highlight: false,
-              },
-            ]}
-            max={100}
-          />
+          {percentage > 0 && percentage < 100 && (
+            <>
+              <Box style={{ position: "absolute" }}>{percentage + " %"}</Box>
+              <Meter
+                alignSelf={"center"}
+                margin={"5px"}
+                style={{ width: "100%" }}
+                thickness={"small"}
+                values={[
+                  {
+                    value: percentage,
+                    color: "cornflowerblue",
+                    highlight: false,
+                  },
+                ]}
+                max={100}
+              />
+            </>
+          )}
+          {percentage === 100 && (
+            <Box
+              style={{
+                position: "absolute",
+                backgroundColor: "springgreen",
+                color: "white",
+                padding:'0 5px',
+                borderRadius:'5px'
+              }}
+            >
+              UPLOADED
+            </Box>
+          )}
         </Box>
         <IconButton onClick={clearVideoHandler} disabled={!value}>
-          <Trash color={"red"} />
+          <ClearOption color={"red"} />
         </IconButton>
       </Box>
       {value ? (

@@ -6,6 +6,7 @@ import { storage } from "../services/firebase";
 import { useGlobalContext } from "../context/GlobalContext";
 import VideoInput from "./VideoInput ";
 import { saveVideoData } from "../services/saveDataToRealTimeDatabase";
+import { Box } from "grommet";
 
 export default function VideoUploader() {
   const [video, setVideo] = useState(null);
@@ -17,16 +18,17 @@ export default function VideoUploader() {
   const videoChangeHandler = (video) => {
     if (!video) {
       setVideo(null);
+      setPercentUploaded(0);
       return;
-    } 
+    }
 
     const reader = new FileReader();
     reader.readAsDataURL(video);
     reader.onload = function () {
       setVideo(reader.result); // Use Local Video to have faster local PreviewView
     };
-
-    const videoTitle = uuidv4() + "_|_" + video?.name;
+    const videoUniqueId = uuidv4();
+    const videoTitle = videoUniqueId + "_|_" + video?.name;
     const videoPath = `videos/${videoTitle}`;
     const uploadTask = storage.ref(videoPath).put(video);
 
@@ -53,7 +55,7 @@ export default function VideoUploader() {
           .getDownloadURL()
           .then((fireBaseUrl) => {
             setVideoUrl(fireBaseUrl);
-            saveVideoData(video.name, videoTitle, video.size, fireBaseUrl);
+            saveVideoData(video.name, videoUniqueId, video.size, fireBaseUrl);
           })
           .catch((err) => {
             console.error(err);
@@ -63,13 +65,13 @@ export default function VideoUploader() {
   };
 
   return (
-    <div>
+    <Box justify={"center"} direction={'row'}>
       <VideoInput
-        style={{ maxWidth: "480px" }}
+        style={{ maxWidth: "480px",width:'100%' }}
         value={video}
         percentage={percentUploaded}
         onChange={videoChangeHandler}
       />
-    </div>
+    </Box>
   );
 }
