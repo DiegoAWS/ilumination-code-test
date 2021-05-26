@@ -16,11 +16,10 @@ firebase.initializeApp(firebaseConfig);
 
 const storage = firebase.storage()
 
-const databaseRef = firebase.database().ref('/videos');
-const configStorage = databaseRef.child("videos")
+const database = firebase.database().ref('/videos');
 
 export {
-  configStorage,
+  database,
   storage, 
   firebase as default
 }

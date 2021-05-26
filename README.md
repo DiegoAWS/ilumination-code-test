@@ -1,6 +1,4 @@
-# Proyecto test para Ilumination Team
-===
+# Test project for Ilumination Team
 
-Visible en  [este sitio](https://ilumination-code-test.web.app)
-
-NOTA, dado que este sitio Utiliza los servicios de FIREBASE se recomienda encarecidamente acceder desde fuera de Cuba (VPN)
+Visible on [this site](https://ilumination-code-test.web.app)
+NOTE, since this site uses FIREBASE services, it is strongly recommended to access from outside of Cuba (VPN)

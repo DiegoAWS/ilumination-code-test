@@ -1,120 +1,112 @@
 import React from "react";
-import { useState } from "react";
-import { Box, Button, FileInput, Meter } from "grommet";
+import { Button, Box, FileInput, Meter, Image } from "grommet";
+import ReactPlayer from "react-player";
+import styled from "styled-components";
+import { NewWindow, Sync, Trash } from "grommet-icons";
+import videoLogo from "../assets/imgs/videoLogo.png";
 
-import mime from "mime-types";
-import { v4 as uuidv4 } from "uuid";
-import { storage } from "../services/firebase";
-import { useGlobalContext } from "../context/GlobalContext";
+const LabelWrapper = styled.label`
+  div:not(.videoPlayer) {
+    display: none;
+  }
+`;
 
-export default function VideoInput() {
-  const [file, setFile] = useState(null);
-  const [uploadState, setUploadState] = useState(null);
+const PlayerWrapper = styled.div`
+  position: relative;
+  padding-top: 56.25%;
+  .videoPlayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+`;
+const IconButton = styled(Button)`
+  padding: 5px;
+`;
 
-  const [percentUploaded, setPercentUploaded] = useState(0);
-  const [uploadErrors, setUploadErrors] = useState([]);
-  const authorizedFileTypes = ["video/mp4", "video/x-msvideo"]; // MP4 and AVI
+/// video existed and between 10kB and 5mB
+const isProperFile = (video) =>
+  video?.name && video?.size > 10000 && video.size < 5000000;
 
-  /*
-  VIDEO MIME types
-.flv  video/x-flv
-.mp4	video/mp4
-.m3u8	application/x-mpegURL
-.ts	  video/MP2T
-.3gp	video/3gpp
-.avi	video/x-msvideo
-.wmv	video/x-ms-wmv
-*/
+export default function VideoInput({
+  value = null,
+  percentage = 0,
+  onChange = () => {},
+  ...props
+}) {
+  const loadVideoHandler = (e) => {
+    const video = e?.target.files[0];
 
-  const { setVideoUrl } = useGlobalContext();
-
-  /// file existed and between 10kB and 5mB
-  const isProperFile = (file) =>
-    file?.name &&
-    authorizedFileTypes.includes(mime.lookup(file.name)) &&
-    file?.size > 10000 &&
-    file.size < 5000000;
-
-  const loadFile = (event) => {
-    const fileSelected = event?.target?.files[0];
-
-    setFile(isProperFile(fileSelected) ? fileSelected : null);
+    onChange(isProperFile(video) ? video : null);
   };
 
-  const uploadFile = () => {
-    const videoTitle = uuidv4() + "_|_" + file?.name;
-    const filePath = `videos/${videoTitle}`;
-
-    setUploadState("uploading");
-    const uploadTask = storage.ref(filePath).put(file);
-
-    uploadTask.on(
-      //Method of Firebase Upload
-      "state_changed",
-
-      // On Progress
-      (snap) => {
-        const uploadedPercent = Math.round(
-          (snap.bytesTransferred / snap.totalBytes) * 100
-        );
-        setPercentUploaded(uploadedPercent);
-      },
-
-      // On Error
-      (err) => {
-        console.error(err);
-        setUploadErrors([...uploadErrors, err]);
-        setUploadState("error");
-      },
-
-      //On Complete
-      () => {
-        storage
-          .ref("videos")
-          .child(videoTitle)
-          .getDownloadURL()
-          .then((fireBaseUrl) => {
-            setVideoUrl(fireBaseUrl);
-            setUploadState("done");
-          })
-          .catch((err) => {
-            console.error(err);
-            setUploadErrors([...uploadErrors, err]);
-            setUploadState("error");
-          });
-      }
-    );
+  const clearVideoHandler = () => {
+    onChange(null);
   };
 
   return (
-    <div>
-      <Box>
-        <FileInput
-          accept=".mp4,.avi"
-          onChange={loadFile}
-          disabled={uploadState === "uploading"}
-        />
-      </Box>
+    <Box border={"all"} direction={"column"} {...props}>
+      <Box direction="row">
+        <Box style={{ marginRight: "10px" }}>
+          <LabelWrapper>
+            {value ? (
+              <Sync
+                style={{ margin: "5px", cursor: "pointer" }}
+                color={"cornflowerblue"}
+              />
+            ) : (
+              <NewWindow
+                style={{ margin: "5px", cursor: "pointer" }}
+                color={"cornflowerblue"}
+              />
+            )}
 
-      <Button
-        primary
-        label="Upload"
-        onClick={uploadFile}
-        disabled={!file || uploadState === "uploading"}
-      />
-
-      {uploadState === "uploading" && (
-        <span>
+            <FileInput // the same if we where use the native <input type='file />
+              accept=".mp4,.avi"
+              type="file"
+              onChange={loadVideoHandler}
+            />
+          </LabelWrapper>
+        </Box>
+        <Box
+          flex={{ grow: 1, position: "relative" }}
+          justify={"center"}
+          align={"center"}
+        >
+          <Box style={{ position: "absolute" }}>{percentage + " %"}</Box>
           <Meter
+            alignSelf={"center"}
+            margin={"5px"}
+            style={{ width: "100%" }}
+            thickness={"small"}
             values={[
               {
-                value: percentUploaded,
+                value: percentage,
+                color: "cornflowerblue",
+                highlight: false,
               },
             ]}
+            max={100}
           />
-          {percentUploaded + " %"}
-        </span>
+        </Box>
+        <IconButton onClick={clearVideoHandler} disabled={!value}>
+          <Trash color={"red"} />
+        </IconButton>
+      </Box>
+      {value ? (
+        <PlayerWrapper>
+          <ReactPlayer
+            url={value}
+            controls
+            playsinline
+            className="videoPlayer"
+            width={"100%"}
+            height={"100%"}
+          />
+        </PlayerWrapper>
+      ) : (
+        <Image fit="cover" src={videoLogo} fill={"horizontal"} />
       )}
-    </div>
+    </Box>
   );
 }
