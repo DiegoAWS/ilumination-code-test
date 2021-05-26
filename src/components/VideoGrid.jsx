@@ -1,23 +1,40 @@
 import { Box } from "grommet";
-import { transform } from "lodash";
-import React, { useEffect } from "react";
+import { transform, compose, sortBy, reverse } from "lodash/fp";
+import React, { useEffect, useState } from "react";
 import { database } from "../services/firebase";
+import VideoCard from "./VideoCard";
+
+const fullTransform = transform.convert({
+  cap: false,
+});
 
 export default function VideoGrid() {
-//   const [dataVideos, setDataVideos] = useState([]);
+  const [dataVideos, setDataVideos] = useState([]);
+
   useEffect(() => {
     database.on("value", (snapshot) => {
-      const data = snapshot.val();
-
-      console.log(data);
-
-      const iteratee = (accumulator, value, key) => {
-        return [...accumulator, { ...value, id: key }];
-      };
-
-      const dataOK = transform(data, iteratee, []);
-      console.log(dataOK);
+      compose([
+        setDataVideos,
+        reverse,
+        sortBy("timeSpan"),
+        fullTransform((acc, value, id) => {
+          acc.push({ ...value, id });
+        }, []),
+      ])(snapshot.val());
     });
+
+    return () => {
+      database.off();
+    };
   }, []);
-  return <Box></Box>;
+
+  console.log(dataVideos);
+
+  return (
+    <Box direction={"row"} wrap justify={"between"}>
+      {dataVideos.map((item) => (
+        <VideoCard item={item} key={item.id} />
+      ))}
+    </Box>
+  );
 }

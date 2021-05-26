@@ -4,20 +4,20 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { storage } from "../services/firebase";
 import { useGlobalContext } from "../context/GlobalContext";
-import VideoInput from "./VideoInput ";
-import { saveVideoData } from "../services/saveDataToRealTimeDatabase";
+import VideoInput from "./VideoInput";
+import { saveVideoData } from "../services/databaseFunctions";
 import { Box } from "grommet";
+import { FILENAME_UNION } from "../utils/constants";
 
+import { ToastContainer, toast } from "react-toastify";
 export default function VideoUploader() {
-  const [video, setVideo] = useState(null);
+  const { videoToPlay, setVideoToPlay } = useGlobalContext();
 
   const [percentUploaded, setPercentUploaded] = useState(0);
 
-  const { setVideoUrl } = useGlobalContext();
-
   const videoChangeHandler = (video) => {
     if (!video) {
-      setVideo(null);
+      setVideoToPlay(null);
       setPercentUploaded(0);
       return;
     }
@@ -25,12 +25,12 @@ export default function VideoUploader() {
     const reader = new FileReader();
     reader.readAsDataURL(video);
     reader.onload = function () {
-      setVideo(reader.result); // Use Local Video to have faster local PreviewView
+      setVideoToPlay(reader.result); // Use Local Video to have faster local PreviewView
     };
     const videoUniqueId = uuidv4();
-    const videoTitle = videoUniqueId + "_|_" + video?.name;
-    const videoPath = `videos/${videoTitle}`;
-    const uploadTask = storage.ref(videoPath).put(video);
+    const videoTitle = videoUniqueId + FILENAME_UNION + video?.name;
+    const videoPath = `${videoTitle}`;
+    const uploadTask = storage.child(videoPath).put(video);
 
     uploadTask.on(
       //Method of Firebase Upload
@@ -49,12 +49,19 @@ export default function VideoUploader() {
 
       //On Complete
       () => {
+        toast.success("Video Uploaded", {
+          position: "top-right",
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+        });
+
         storage
-          .ref("videos")
           .child(videoTitle)
           .getDownloadURL()
           .then((fireBaseUrl) => {
-            setVideoUrl(fireBaseUrl);
             saveVideoData(video.name, videoUniqueId, video.size, fireBaseUrl);
           })
           .catch((err) => {
@@ -65,13 +72,14 @@ export default function VideoUploader() {
   };
 
   return (
-    <Box justify={"center"} direction={'row'}>
+    <Box justify={"center"} direction={"row"}>
       <VideoInput
-        style={{ maxWidth: "480px",width:'100%' }}
-        value={video}
+        value={videoToPlay}
         percentage={percentUploaded}
         onChange={videoChangeHandler}
       />
+
+      <ToastContainer />
     </Box>
   );
 }

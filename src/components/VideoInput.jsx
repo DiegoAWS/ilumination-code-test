@@ -1,12 +1,36 @@
 import React from "react";
-import { Button, Box, FileInput, Meter, Image } from "grommet";
+import { Box, FileInput, Meter, Image } from "grommet";
 import ReactPlayer from "react-player";
 import styled from "styled-components";
-import { NewWindow, Sync, ClearOption, Update } from "grommet-icons";
-import videoLogo from "../assets/imgs/videoLogo.png";
+import { CloudUpload, Close, Update } from "grommet-icons";
+import videoLogo from "../assets/imgs/videoLogo.jpg";
+
+const VideoInputHeader = styled(Box)`
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+  background: #a7a7a705;
+  transition: background 1s ease-out;
+  :hover {
+    background: #a7a7a770;
+    .videoUploaderButton {
+      background: #2da8ff;
+      svg {
+        stroke: blue;
+      }
+    }
+    .closeButton {
+      background: #fdd0d0;
+      svg {
+        stroke: red;
+      }
+    }
+  }
+`;
 
 const LabelWrapper = styled.label`
-  div:not(.videoPlayer) {
+  div:not(.videoUploaderButton) {
     display: none;
   }
 `;
@@ -20,8 +44,20 @@ const PlayerWrapper = styled.div`
     left: 0;
   }
 `;
-const IconButton = styled(Button)`
+
+const IconButtonDiv = styled.div`
   padding: 5px;
+  display: flex;
+  transition: background 1s ease-out;
+  background: transparent;
+  border-radius: 100px;
+  cursor: pointer;
+
+    svg {
+ 
+      transition: stroke 1s ease-out;
+    }
+  }
 `;
 
 const SpinnerIcon = styled(Update)`
@@ -37,15 +73,14 @@ const SpinnerIcon = styled(Update)`
   animation: spin 2s linear infinite;
 `;
 
-/// video existed and between 10kB and 5mB
+// video exist and size between 10kB and 50mB
 const isProperFile = (video) =>
-  video?.name && video?.size > 10000 && video.size < 5000000;
+  video?.name && video?.size > 10000 && video.size < 50000000;
 
 export default function VideoInput({
   value = null,
   percentage = 0,
   onChange = () => {},
-  ...props
 }) {
   const loadVideoHandler = (e) => {
     const video = e?.target.files[0];
@@ -58,23 +93,18 @@ export default function VideoInput({
   };
 
   return (
-    <Box border={"all"} direction={"column"} {...props}>
-      <Box direction="row">
-        {(percentage === 0 || percentage === 100) && (
+    <Box
+      border={"all"}
+      direction={"column"}
+      style={{ position: "relative", maxWidth: "480px", width: "100%" }}
+    >
+      <VideoInputHeader direction="row">
+        {!value && (percentage === 0 || percentage === 100) && (
           <Box style={{ marginRight: "10px" }}>
             <LabelWrapper>
-              {value ? (
-                <Sync
-                  style={{ margin: "5px", cursor: "pointer" }}
-                  color={"cornflowerblue"}
-                />
-              ) : (
-                <NewWindow
-                  style={{ margin: "5px", cursor: "pointer" }}
-                  color={"cornflowerblue"}
-                />
-              )}
-
+              <IconButtonDiv className={"videoUploaderButton"}>
+                <CloudUpload color={"2da8ff0f"} />
+              </IconButtonDiv>
               <FileInput // the same if we where use the native <input type='file />
                 accept=".mp4,.avi"
                 type="file"
@@ -85,10 +115,7 @@ export default function VideoInput({
         )}
         {percentage > 0 && percentage < 100 && (
           <Box>
-            <SpinnerIcon
-              style={{ margin: "5px" }}
-              color={"cornflowerblue"}
-            />
+            <SpinnerIcon style={{ margin: "5px" }} color={"cornflowerblue"} />
           </Box>
         )}
         <Box
@@ -115,24 +142,13 @@ export default function VideoInput({
               />
             </>
           )}
-          {percentage === 100 && (
-            <Box
-              style={{
-                position: "absolute",
-                backgroundColor: "springgreen",
-                color: "white",
-                padding:'0 5px',
-                borderRadius:'5px'
-              }}
-            >
-              UPLOADED
-            </Box>
-          )}
         </Box>
-        <IconButton onClick={clearVideoHandler} disabled={!value}>
-          <ClearOption color={"red"} />
-        </IconButton>
-      </Box>
+        {value && (
+          <IconButtonDiv onClick={clearVideoHandler} className="closeButton">
+            <Close color={"#ff000017"} />
+          </IconButtonDiv>
+        )}
+      </VideoInputHeader>
       {value ? (
         <PlayerWrapper>
           <ReactPlayer
@@ -145,7 +161,16 @@ export default function VideoInput({
           />
         </PlayerWrapper>
       ) : (
-        <Image fit="cover" src={videoLogo} fill={"horizontal"} />
+        <PlayerWrapper>
+          <Image
+            fit="cover"
+            className="videoPlayer"
+            width={"100%"}
+            height={"100%"}
+            src={videoLogo}
+            fill={"horizontal"}
+          />
+        </PlayerWrapper>
       )}
     </Box>
   );
