@@ -52,9 +52,7 @@ const IconButtonDiv = styled.div`
   background: transparent;
   border-radius: 100px;
   cursor: pointer;
-
-    svg {
- 
+    svg { 
       transition: stroke 1s ease-out;
     }
   }
@@ -69,7 +67,6 @@ const SpinnerIcon = styled(Update)`
       transform: rotate(359deg);
     }
   }
-
   animation: spin 2s linear infinite;
 `;
 
@@ -84,7 +81,6 @@ export default function VideoInput({
 }) {
   const loadVideoHandler = (e) => {
     const video = e?.target.files[0];
-
     onChange(isProperFile(video) ? video : null);
   };
 
@@ -105,7 +101,7 @@ export default function VideoInput({
               <IconButtonDiv className={"videoUploaderButton"}>
                 <CloudUpload color={"2da8ff0f"} />
               </IconButtonDiv>
-              <FileInput // the same if we where use the native <input type='file />
+              <FileInput // the same as if we where using the native <input type='file />
                 accept=".mp4,.avi"
                 type="file"
                 onChange={loadVideoHandler}
@@ -149,8 +145,9 @@ export default function VideoInput({
           </IconButtonDiv>
         )}
       </VideoInputHeader>
-      {value ? (
-        <PlayerWrapper>
+
+      <PlayerWrapper>
+        {value ? (
           <ReactPlayer
             url={value}
             controls
@@ -159,9 +156,7 @@ export default function VideoInput({
             width={"100%"}
             height={"100%"}
           />
-        </PlayerWrapper>
-      ) : (
-        <PlayerWrapper>
+        ) : (
           <Image
             fit="cover"
             className="videoPlayer"
@@ -170,8 +165,8 @@ export default function VideoInput({
             src={videoLogo}
             fill={"horizontal"}
           />
-        </PlayerWrapper>
-      )}
+        )}
+      </PlayerWrapper>
     </Box>
   );
 }
